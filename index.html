@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Chip & Atlas Jo TV — Kids & Family</title>
+<meta name="color-scheme" content="light">
+<style>
+  :root{
+    --green:#1fa37d; --orange:#ff7a1a; --pink:#ff64b0; --blue:#3aa7ff; --yellow:#ffd94a; --bg:#f7fbff; --ink:#223;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; color:var(--ink);
+    font-family:ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Color Emoji";
+    /* Kidsy sky background with floating shapes */
+    background:
+      radial-gradient(1200px 600px at 10% -10%, #dff3ff 0 60%, transparent 61%) no-repeat,
+      radial-gradient(1200px 600px at 90% -10%, #ffe7f1 0 60%, transparent 61%) no-repeat,
+      radial-gradient(1200px 700px at 50% 120%, #e9ffe7 0 60%, transparent 61%) no-repeat,
+      repeating-linear-gradient(45deg, #ffffff, #ffffff 20px, #fdfbff 20px, #fdfbff 40px);
+  }
+
+  header{
+    display:flex; align-items:center; justify-content:center; gap:1rem; padding:1rem 1.25rem;
+    position:sticky; top:0; z-index:10;
+    background:linear-gradient(180deg,#fff8,#fff0), transparent; backdrop-filter:saturate(1.1) blur(6px);
+    border-bottom:1px solid #0001; text-align:center;
+  }
+  .logo{display:flex; align-items:center; gap:.75rem}
+  .badge{display:grid; place-items:center; width:48px; height:48px; border-radius:14px;
+    background:conic-gradient(from 180deg, var(--green), var(--blue), var(--pink), var(--orange));
+    color:#fff; font-weight:800; box-shadow:0 6px 14px #0002}
+  .title{font-weight:900; font-size:1.35rem}
+  .subtitle{font-size:.95rem; color:#445}
+
+  /* ===== Layout: Player on top, guide below ===== */
+  main{display:grid; gap:1rem; padding:1rem; max-width:1200px; margin:0 auto}
+  .panel{
+    background:linear-gradient(180deg,#ffffffcc,#ffffffee);
+    border:1px solid #0001; border-radius:16px; box-shadow:0 8px 20px #0001
+  }
+
+  /* ===== Spongey animated TV frame ===== */
+  .tv-wrap{
+    position:relative; padding:18px; border-radius:24px; overflow:visible; margin-top:.25rem;
+  }
+  .tv-wrap::before{
+    content:"";
+    position:absolute; inset:-10px -10px -14px -10px;
+    border-radius:28px;
+    background:
+      radial-gradient(14px 14px at 18% 22%, #e2b900 35%, transparent 36%) no-repeat,
+      radial-gradient(18px 18px at 76% 30%, #e2b900 35%, transparent 36%) no-repeat,
+      radial-gradient(10px 10px at 35% 68%, #e2b900 35%, transparent 36%) no-repeat,
+      radial-gradient(16px 16px at 62% 78%, #e2b900 35%, transparent 36%) no-repeat,
+      radial-gradient(12px 12px at 86% 64%, #e2b900 35%, transparent 36%) no-repeat,
+      radial-gradient(12px 12px at 12% 72%, #e2b900 35%, transparent 36%) no-repeat,
+      linear-gradient(var(--yellow), #ffcc1c);
+    box-shadow:0 12px 24px #0003 inset, 0 18px 32px #0002, 0 2px 0 #f4e27a inset;
+    animation:squish 5s ease-in-out infinite;
+  }
+  .tv-wrap::after{
+    content:"";
+    position:absolute; inset:-10px -10px -14px -10px; border-radius:28px; pointer-events:none;
+    background:
+      radial-gradient(8px 8px at 20% 18%, #fff9 30%, transparent 31%) repeat,
+      radial-gradient(6px 6px at 36% 10%, #fff7 30%, transparent 31%) repeat,
+      radial-gradient(10px 10px at 80% 22%, #fff9 30%, transparent 31%) repeat;
+    background-size:140px 140px, 160px 160px, 180px 180px;
+    mix-blend-mode:soft-light; filter:blur(.2px); animation:bubbles 8s linear infinite;
+  }
+  @keyframes squish{ 0%,100%{ transform:translateY(0) scale(1);} 50%{ transform:translateY(2px) scale(1.01);} }
+  @keyframes bubbles{ 0%{ background-position:0 0,0 0,0 0;} 100%{ background-position:0 -200px,0 -220px,0 -260px;} }
+
+  .viewport{position:relative; background:#000; border-radius:16px; overflow:hidden}
+  video{display:block; width:100%; height:auto; aspect-ratio:16/9; background:#000}
+
+  .nowbar{display:flex; gap:.75rem; flex-wrap:wrap; align-items:center; justify-content:center; padding:0 1rem 1rem}
+  .pill{background:#ffef8a; border:1px solid #f2d45e; padding:.35rem .7rem; border-radius:999px; font-weight:700; color:#5b4a00}
+
+  /* ===== Guide ===== */
+  .filters{display:grid; gap:.5rem; grid-template-columns:1fr 1fr 1fr; padding:1rem; border-bottom:1px dashed #0001}
+  .filters input[type="text"]{grid-column:1/-1}
+  .guide{max-height:66vh; overflow:auto}
+  .row{display:grid; grid-template-columns:56px 1fr 72px; align-items:center; gap:.75rem; padding:.65rem 1rem; border-bottom:1px solid #0000000f; cursor:pointer}
+  .row:nth-child(odd){background:#f9fbff}
+  .row:hover{background:#eef7ff}
+  .ch-num{font-weight:800; color:#334; text-align:center}
+  .ch-name{font-weight:700}
+  .tag{font-size:.75rem; background:#eef7ff; color:#135; padding:.22rem .5rem; border-radius:100px; display:inline-block}
+  .broken .ch-name{opacity:.6; text-decoration:line-through}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <div class="badge">C&A</div>
+    <div>
+      <div class="title">Chip & Atlas Jo TV</div>
+      <div class="subtitle">Kids • Toddlers • Family —Daddy Loves You</div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ===== Top: Player with animated sponge frame ===== -->
+  <section class="panel tv-wrap">
+    <div class="viewport">
+      <video id="video" controls playsinline></video>
+    </div>
+    <div class="nowbar">
+      <span class="pill" id="nowTitle">Pick a channel from the guide 🎈</span>
+      <span class="pill" id="meta" style="display:none"></span>
+    </div>
+  </section>
+
+  <!-- ===== Bottom: Guide ===== -->
+  <section class="panel">
+    <div class="filters">
+      <input id="search" type="text" placeholder="🔎 Search channels (PBS Kids, ZooMoo, Cartoon, etc.)"/>
+      <select id="country"></select>
+      <select id="language"></select>
+      <label style="display:flex; align-items:center; gap:.5rem"><input type="checkbox" id="workingOnly"> Show only tested-working</label>
+    </div>
+    <div class="guide" id="guide"></div>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
+<script>
+/* ----------------------- Sources ----------------------- */
+/* Legal/public playlists from iptv-org */
+const PLAYLISTS = [
+  { url:'https://iptv-org.github.io/iptv/categories/kids.m3u',      label:'Kids' },
+  { url:'https://iptv-org.github.io/iptv/categories/education.m3u', label:'Education' },
+  { url:'https://iptv-org.github.io/iptv/categories/classic.m3u',   label:'Classic' },
+  { url:'https://iptv-org.github.io/iptv/categories/comedy.m3u',    label:'Comedy' }
+];  // <-- correctly closed PLAYLISTS
+
+// ===== EXTRA explicit U.S. channels (legal/official) =====
+const EXTRA_CHANNELS = [
+  {
+    id:'NickPlutoTV.us',
+    name:'Nick Pluto TV (US)',
+    url:'https://service-stitcher.clusters.pluto.tv/stitch/hls/channel/5ca673e0d0bd6c2689c94ce3/master.m3u8?deviceType=web&appName=web&deviceMake=Chrome',
+    logo:'https://images.pluto.tv/channels/5ca673e0d0bd6c2689c94ce3/colorLogoPNG.png',
+    language:'English', country:'United States', group:'Nickelodeon (FAST)'
+  },
+  {
+    id:'NickJrPlutoTV.us',
+    name:'Nick Jr. Pluto TV (US)',
+    url:'https://service-stitcher.clusters.pluto.tv/stitch/hls/channel/5ca6748a37b88b269472dad9/master.m3u8?deviceType=web&appName=web&deviceMake=Chrome',
+    logo:'https://images.pluto.tv/channels/5ca6748a37b88b269472dad9/colorLogoPNG.png',
+    language:'English', country:'United States', group:'Nick Jr. (FAST)'
+  },
+  {
+    id:'ComedyCentralAnimation.us',
+    name:'Comedy Central Animation (US • Pluto TV)',
+    url:'https://service-stitcher.clusters.pluto.tv/stitch/hls/channel/5f99e24636d67d0007a94e6d/master.m3u8?deviceType=web&appName=web&deviceMake=Chrome',
+    logo:'https://images.pluto.tv/channels/5f99e24636d67d0007a94e6d/colorLogoPNG.png',
+    language:'English', country:'United States', group:'Adult Animation (FAST)'
+  },
+  {
+    id:'MeTVToons.WAAYDT8',
+    name:'MeTV Toons (WAAY-DT8)',
+    url:'https://d3m10mlzdolmch.cloudfront.net/v1/master/840a24ccd7c75076211d060179b3ad0c64fdc6ca/metv_toon_nr/0d1dbf29e64e47bc991796cc24fbeb97/index.m3u8',
+    logo:'https://metvtoons.com/wp-content/uploads/2024/05/MeTV-TOONS-Logo.png',
+    language:'English', country:'United States', group:'Classic Toons'
+  }
+];
+
+// === Merge EXTRA_CHANNELS after playlist load ===
+function mergeExtraChannels(){
+  if(!Array.isArray(ALL)) ALL=[];
+  const existing = new Set(ALL.map(c=> (c.id||'')+'|'+(c.url||'')));
+  EXTRA_CHANNELS.forEach(c=>{
+    const key=(c.id||'')+'|'+(c.url||'');
+    if(!existing.has(key)) ALL.push(c);
+  });
+}
+
+/* ----------------------- State ------------------------ */
+let ALL = [];
+let FILTERED = [];
+let TESTED = new Map();
+let CURRENT = null;
+
+/* ----------------------- Helpers ---------------------- */
+function parseM3U(text, label){
+  const lines = text.split(/\r?\n/);
+  const out = [];
+  let meta = null;
+  for(const line of lines){
+    if(line.startsWith('#EXTINF')){
+      const attrs = {};
+      (line.match(/([a-zA-Z-]+)="([^"]*)"/g)||[]).forEach(kv=>{
+        const [k,v] = kv.split('=');
+        attrs[k]=v.replace(/^"|"$/g,'');
+      });
+      const name = line.split(',').pop().trim();
+      meta = { name, attrs, label };
+    } else if(line && !line.startsWith('#') && meta){
+      const url = line.trim();
+      out.push({
+        id: meta.attrs['tvg-id'] || '',
+        name: meta.name,
+        url,
+        logo: meta.attrs['tvg-logo'] || '',
+        language: meta.attrs['tvg-language'] || '',
+        country:  meta.attrs['tvg-country'] || '',
+        group: meta.attrs['group-title'] || label
+      });
+      meta = null;
+    }
+  }
+  return out;
+}
+function dedupe(arr){
+  const seen = new Set(); const out=[];
+  for(const c of arr){
+    const key = (c.id||'')+'|'+c.name.toLowerCase()+'|'+c.url;
+    if(!seen.has(key)){ seen.add(key); out.push(c); }
+  }
+  return out;
+}
+function by(a,b){ return a<b?-1:a>b?1:0; }
+
+/* ----------------------- Load ------------------------- */
+async function loadPlaylists(){
+  const chunks = await Promise.all(
+    PLAYLISTS.map(p => fetch(p.url).then(r=>r.text()).then(t=>parseM3U(t,p.label)).catch(()=>[]))
+  );
+  ALL = dedupe(chunks.flat());
+  mergeExtraChannels();         // << keeps your Nick / MeTV additions
+  buildFilters();
+  applyFilters();
+}
+function buildFilters(){
+  const countries=[...new Set(ALL.map(c=>c.country).filter(Boolean))].sort();
+  const languages=[...new Set(ALL.map(c=>c.language).filter(Boolean))].sort();
+  const cSel=document.getElementById('country');
+  const lSel=document.getElementById('language');
+  cSel.innerHTML = `<option value="">🌎 All Countries</option>` + countries.map(c=>`<option>${c}</option>`).join('');
+  lSel.innerHTML = `<option value="">🗣️ All Languages</option>` + languages.map(l=>`<option>${l}</option>`).join('');
+}
+
+/* ----------------------- Filter/Render ---------------- */
+function applyFilters(){
+  const q = (document.getElementById('search').value.trim().toLowerCase());
+  const country = document.getElementById('country').value;
+  const language= document.getElementById('language').value;
+  const workingOnly = document.getElementById('workingOnly').checked;
+
+  FILTERED = ALL.filter(c=>{
+    if(q && !(c.name.toLowerCase().includes(q) || (c.group||'').toLowerCase().includes(q))) return false;
+    if(country && c.country!==country) return false;
+    if(language && c.language!==language) return false;
+    if(workingOnly && !(TESTED.get(c.url)?.ok)) return false;
+    return true;
+  }).sort((a,b)=>by(a.name.toLowerCase(), b.name.toLowerCase()));
+
+  renderGuide();
+}
+
+function renderGuide(){
+  const el = document.getElementById('guide');
+  el.innerHTML = '';
+  FILTERED.forEach((c,i)=>{
+    const row=document.createElement('div'); row.className='row';
+    if(TESTED.has(c.url) && !TESTED.get(c.url).ok) row.classList.add('broken');
+    row.innerHTML = `
+      <div class="ch-num">${String(i+1).padStart(2,'0')}</div>
+      <div>
+        <div class="ch-name">${c.name}</div>
+        <div class="tag">${c.group || 'Kids'}</div>
+      </div>
+      <div style="text-align:right">${TESTED.get(c.url)?.ok ? '🟢' : (TESTED.has(c.url)? '🔴':'')}</div>
+    `;
+    row.onclick=()=>playChannel(c);
+    el.appendChild(row);
+  });
+}
+
+/* ----------------------- Player ----------------------- */
+let hls=null;
+function playChannel(ch){
+  CURRENT = ch;
+  const v=document.getElementById('video');
+  const title=document.getElementById('nowTitle');
+  const meta=document.getElementById('meta');
+  title.textContent = ch.name;
+  meta.style.display='inline-block';
+  meta.textContent = [ch.country||'World', ch.language||'Multilingual', ch.group||'Kids'].join(' • ');
+
+  if(hls){ hls.destroy(); hls=null; }
+  if(v.canPlayType('application/vnd.apple.mpegurl')){
+    v.src=ch.url; v.play().catch(()=>{});
+  }else{
+    hls=new Hls(); hls.loadSource(ch.url); hls.attachMedia(v);
+    hls.on(Hls.Events.MANIFEST_PARSED, ()=> v.play().catch(()=>{}));
+  }
+
+  // quick status test (kept but optional)
+  quickTest(ch.url).then(ok=>{
+    TESTED.set(ch.url,{ok, ts:Date.now()});
+    renderGuide();
+  });
+}
+
+/* ----------------------- Testing ---------------------- */
+async function quickTest(url){
+  return new Promise(async resolve=>{
+    const testVideo=document.createElement('video'); let done=false;
+    const finish=(ok)=>{ if(!done){ done=true; resolve(ok); testVideo.src=''; testVideo.remove(); } };
+    testVideo.addEventListener('loadedmetadata',()=>finish(true),{once:true});
+    testVideo.addEventListener('error',()=>finish(false),{once:true});
+    try{
+      if(testVideo.canPlayType('application/vnd.apple.mpegurl')){
+        testVideo.src=url; testVideo.load();
+      }else{
+        const tHls=new Hls({maxBufferLength:1}); tHls.loadSource(url); tHls.attachMedia(testVideo);
+        tHls.on(Hls.Events.ERROR, ()=>finish(false));
+      }
+    }catch(e){ finish(false); }
+    setTimeout(()=>finish(false), 4000);
+  });
+}
+
+/* ----------------------- Init ------------------------- */
+loadPlaylists();
+</script>
+</body>
+</html>
